@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express';
 
-const users = [];
+const users: { email: string }[] = [];
 
 export function register(req: Request, res: Response) {
   const { email, password } = req.body;
+
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     return res
@@ -29,11 +30,17 @@ export function register(req: Request, res: Response) {
         'Password must contain at least one special character, one number, one uppercase letter and one lowercase letter',
     });
   }
-
+  const user = { email };
+  users.push(user);
   return res.status(201).json({
     success: true,
-    data: {
-      email,
-    },
+    data: user,
+  });
+}
+
+export function getUsers(req: Request, res: Response) {
+  return res.status(200).json({
+    success: true,
+    data: users,
   });
 }

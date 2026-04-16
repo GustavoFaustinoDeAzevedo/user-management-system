@@ -4,7 +4,7 @@
 
 ## Ultimo Update do README
 
-`21-02-2025`
+`16-04-2026`
 
 ---
 

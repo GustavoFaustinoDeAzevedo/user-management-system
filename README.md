@@ -1,17 +1,16 @@
 # User Management System
 
-## Descrição
+> Projeto criado para prática e demonstração de habilidades em desenvolvimento backend, com foco em evolução progressiva até um sistema full-stack.
 
-Aplicação full-stack desenvolvida para gerenciamento de usuários, com foco em boas práticas de API REST, validação de dados e organização de código.
+## Ultimo Update do README
+
+`21-02-2025`
 
 ---
 
-## Tecnologias
+## Descrição
 
-- Node.js
-- TypeScript
-- Express
-- Nodemon
+Aplicação full-stack desenvolvida para gerenciamento de usuários, com foco em boas práticas de API REST, validação de dados e organização de código.
 
 ---
 
@@ -35,26 +34,21 @@ Aplicação full-stack desenvolvida para gerenciamento de usuários, com foco em
 
 ---
 
-## Estrutura do projeto
-
-```
-backend/
-  src/
-    controllers/
-    routes/
-    models/
-    middlewares/
-    server.ts
-```
-
----
-
-## Como rodar o projeto
+## Como Executar
 
 ```bash
 npm install
 npm run dev
 ```
+
+---
+
+## Tecnologias Usadas
+
+- Node.js
+- TypeScript
+- Express
+- Nodemon
 
 ---
 
@@ -89,7 +83,7 @@ POST /users/register
 ```json
 {
   "success": false,
-  "error": "mensagem de erro"
+  "error": "mensagem que depende do erro" 
 }
 ```
 
@@ -101,12 +95,6 @@ POST /users/register
 - Apenas administradores podem gerenciar outros usuários
 - Não permitir emails duplicados
 - Sessão persistente após login
-
----
-
-## Objetivo
-
-Projeto criado para prática e demonstração de habilidades em desenvolvimento backend, com foco em evolução progressiva até um sistema full-stack.
 
 ---
 

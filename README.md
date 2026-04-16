@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Aplicação backend desenvolvida para gerenciamento de usuários, com foco em boas práticas de API REST, validação de dados e organização de código.
+Aplicação full-stack desenvolvida para gerenciamento de usuários, com foco em boas práticas de API REST, validação de dados e organização de código.
 
 ---
 
@@ -106,7 +106,7 @@ POST /users/register
 
 ## Objetivo
 
-Projeto criado para prática e demonstração de habilidades em desenvolvimento backend, com foco em evolução progressiva até um sistema completo.
+Projeto criado para prática e demonstração de habilidades em desenvolvimento backend, com foco em evolução progressiva até um sistema full-stack.
 
 ---
 

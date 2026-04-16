@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
 
+const users = [];
+
 export function register(req: Request, res: Response) {
   const { email, password } = req.body;
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;

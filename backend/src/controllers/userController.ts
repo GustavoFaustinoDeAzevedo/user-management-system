@@ -1,86 +1,82 @@
 import type { Request, Response } from 'express';
 
-const users: { email: string }[] = [];
+let id = 1;
 
-export function register(req: Request, res: Response) {
+type User = {
+  id: number;
+  email: string;
+};
+
+type ErrorResponse = {
+  success: false;
+  errors: {
+    email: string[];
+    password: string[];
+  };
+};
+
+type RegisterResponse =
+  | {
+      success: boolean;
+      data: User | User[];
+    }
+  | ErrorResponse;
+
+const users: User[] = [];
+
+export function register(req: Request, res: Response<RegisterResponse>) {
   const { email, password } = req.body;
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
-  const userExists = users.find((user) => user.email === email);
+  const isValidEmail =
+    email && typeof email === 'string' && email.includes('@');
+  const isPasswordFilled = password && typeof password === 'string';
   const errorMessages = {
     email: [
-      { condition: userExists, message: 'User already exists' },
       {
-        condition: !email || typeof email !== 'string' || !email.includes('@'),
+        condition: !isValidEmail,
         message: 'You must send a valid email address',
+      },
+      {
+        condition: isValidEmail && users.some((user) => user.email === email),
+        message: 'User already exists',
       },
     ],
     password: [
-      { condition: !password, message: 'You must send a password' },
+      { condition: !isPasswordFilled, message: 'You must send a password' },
       {
-        condition: password.length < 8 || password.length > 20,
-        message: 'be at least 8 characters and at most 20',
+        condition:
+          isPasswordFilled && (password.length < 8 || password.length > 20),
+        message: 'Password must be at least 8 characters and at most 20',
       },
       {
-        condition: regex.test(password) === false,
+        condition: isPasswordFilled && regex.test(password) === false,
         message:
-          'contain at least one special character, one number, one uppercase letter and one lowercase letter',
+          'Password must contain at least one special character, one number, one uppercase letter and one lowercase letter',
       },
     ],
   };
 
   // Validation
+
   const errors = {
     email: errorMessages.email
       .filter((error) => error.condition)
-      .map((error) => error.message)
-      .join(', ')
-      .trim(),
+      .map((error) => error.message),
     password: errorMessages.password
       .filter((error) => error.condition)
-      .map((error) => error.message)
-      .join(', ')
-      .trim(),
+      .map((error) => error.message),
   };
 
-  if (errors.email !== '' && errors.password !== '') {
+  if (errors.email.length > 0 || errors.password.length > 0) {
     return res.status(400).json({
       success: false,
-      error: `${errors.email} and the ${errors.password !== '' ? 'password must ' + errors.password : ''}`,
+      errors: errors,
     });
   }
-
-  if (errors.email !== '' || errors.password !== '') {
-    return res.status(400).json({
-      success: false,
-      error: `${errors.email}${errors.password !== '' ? 'Password must ' + errors.password : ''}`,
-    });
-  }
-
-  // if (!email || typeof email !== 'string' || !email.includes('@')) {
-  //   return res.status(400).json({ success: false, error: errorMessages[1] });
-  // }
-  // if (!password || typeof password !== 'string') {
-  //   return res.status(400).json({
-  //     success: false,
-  //     error: errorMessages[2],
-  //   });
-  // }
-  // if (password.length < 8 || password.length > 20) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     error: errorMessages[3],
-  //   });
-  // }
-  // if (regex.test(password) === false) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     error: errorMessages[4],
-  //   });
-  // }
 
   // Create user
 
-  const user = { email };
+  const user = { id: id++, email };
   users.push(user);
   return res.status(201).json({
     success: true,
@@ -88,7 +84,7 @@ export function register(req: Request, res: Response) {
   });
 }
 
-export function getUsers(req: Request, res: Response) {
+export function getUsers(req: Request, res: Response<RegisterResponse>) {
   return res.status(200).json({
     success: true,
     data: users,

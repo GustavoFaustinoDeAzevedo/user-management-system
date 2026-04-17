@@ -37,20 +37,12 @@ Aplicação full-stack desenvolvida para gerenciamento de usuários, com foco em
 ## Como Executar (Provisório)
 
 ```bash
- git clone https://github.com/GustavoFaustinoDeAzevedo/user-management-system
- cd user-management-system/backend
- npm install
- # Opções para execução:
- npm run dev (recomendado para desenvolvimento)
- npx daemon (alternativa)
-=======
 git clone https://github.com/GustavoFaustinoDeAzevedo/user-management-system
 cd user-management-system/backend
 npm install
  # Opções para execução:
 npm run dev (recomendado para desenvolvimento)
 npx daemon (alternativa)
->>>>>>> c65db772b83a15c5ee175c27fe2fa0ec4a092b75
 ```
 
 ---

@@ -1,9 +1,13 @@
 import { Router } from 'express';
-import { listUsers, register } from '../controllers/userController';
+import { listUsers, login, register } from '../controllers/userController';
 
 const userRouter = Router();
 
 userRouter.post('/register', register);
+
+userRouter.post('/login', login);
+
+userRouter.get('/list', listUsers);
 
 userRouter.get('/', listUsers);
 

@@ -1,13 +1,9 @@
 import { ValidationResult } from './user.types';
+import bcrypt from 'bcrypt';
 
 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
 
-export function validateUser(data: unknown): ValidationResult {
-  const errors = {
-    email: [] as string[],
-    password: [] as string[],
-  };
-
+export function validateUserBase(data: unknown): ValidationResult {
   if (typeof data !== 'object' || data === null) {
     return {
       success: false,
@@ -18,9 +14,12 @@ export function validateUser(data: unknown): ValidationResult {
     };
   }
 
+  const errors = {
+    email: [] as string[],
+    password: [] as string[],
+  };
   const rawEmail = (data as any).email;
   const rawPassword = (data as any).password;
-
   let email: string | undefined;
   let password: string | undefined;
 
@@ -36,7 +35,41 @@ export function validateUser(data: unknown): ValidationResult {
     errors.password.push('You must send a password');
   } else {
     password = rawPassword;
+  }
 
+  if (errors.email.length || errors.password.length) {
+    return { success: false, errors };
+  }
+
+  if (!email || !password) {
+    throw new Error('Validation logic failed'); // nunca deve acontecer
+  }
+
+  return {
+    success: true,
+    data: { email, password },
+  };
+}
+
+export function validateUser(data: unknown): ValidationResult {
+  // Reutiliza as validações básicas de email e password
+  const result = validateUserBase(data);
+  if (!result.success) {
+    return result;
+  }
+  // Validações adicionais para registro
+  const errors = {
+    email: [] as string[],
+    password: [] as string[],
+  };
+  const email = (result.data as any).email;
+  const rawPassword = (result.data as any).password;
+  let password: string | undefined;
+
+  if (typeof rawPassword !== 'string') {
+    errors.password.push('You must send a password');
+  } else {
+    password = rawPassword;
     if (password.length < 8 || password.length > 20) {
       errors.password.push('Password must be between 8 and 20 characters');
     }

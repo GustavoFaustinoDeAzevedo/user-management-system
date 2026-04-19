@@ -1,3 +1,11 @@
+export type User = {
+  id: number;
+  email: string;
+  password: string;
+};
+
+export type PublicUser = Omit<User, 'password'>;
+
 export type ValidUserData = {
   email: string;
   password: string;
@@ -17,23 +25,28 @@ export type ErrorResponse = {
   success: false;
   errors: {
     email: string[];
-    password: string[];
+    password?: string[];
   };
 };
 
 export type ListUsersResponse = {
   success: true;
-  data: User[];
+  data: PublicUser[];
 };
 
 export type RegisterResponse =
   | {
       success: true;
-      data: User;
+      data: PublicUser;
     }
   | ErrorResponse;
 
-export type User = {
-  id: number;
-  email: string;
-};
+
+
+export type LoginResponse =
+  | {
+      success: true;
+      data: PublicUser;
+    }
+  | ErrorResponse;
+

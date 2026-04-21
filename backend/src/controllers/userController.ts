@@ -7,8 +7,8 @@ import {
 } from '../services/user/user.services';
 import {
   ListUsersResponse,
+  LoginResponse,
   RegisterResponse,
-  User,
 } from '../services/user/user.types';
 
 export async function register(req: Request, res: Response<RegisterResponse>) {
@@ -21,7 +21,7 @@ export async function register(req: Request, res: Response<RegisterResponse>) {
   return res.status(201).json(result);
 }
 
-export async function login(req: Request, res: Response<RegisterResponse>) {
+export async function login(req: Request, res: Response<LoginResponse>) {
   const result = await loginUser(req.body);
 
   if (!result.success) {
@@ -32,10 +32,10 @@ export async function login(req: Request, res: Response<RegisterResponse>) {
 }
 
 export function listUsers(req: Request, res: Response<ListUsersResponse>) {
-  const users: User[] = getUsers();
+  const users = getUsers();
 
   const safeUsers = users.map(toPublicUser);
-  
+
   return res.status(200).json({
     success: true,
     data: safeUsers,

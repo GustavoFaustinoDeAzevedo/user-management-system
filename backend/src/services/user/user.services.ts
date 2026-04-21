@@ -6,6 +6,7 @@ import {
 } from './user.types';
 import { validateUser } from './user.validator';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 let id = 1;
 
@@ -21,10 +22,11 @@ export async function createUser(input: unknown): Promise<RegisterResponse> {
   const { email } = result.data;
   const hashedPassword = await bcrypt.hash(result.data.password, 10);
 
-  const user = {
+  const user: User = {
     id: id++,
     email,
     password: hashedPassword,
+    role: 'user',
   };
   users.push(user);
 
@@ -33,6 +35,7 @@ export async function createUser(input: unknown): Promise<RegisterResponse> {
     data: {
       id: user.id,
       email: user.email,
+      role: user.role,
     },
   };
 }
@@ -69,11 +72,22 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
     };
   }
 
+  const token = jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    },
+    process.env.JWT_SECRET!,
+    {
+      expiresIn: '1h',
+    },
+  );
+
   return {
     success: true,
     data: {
-      id: user.id,
-      email: user.email,
+      token,
     },
   };
 }

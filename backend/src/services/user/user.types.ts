@@ -1,7 +1,10 @@
+export type Role = 'user' | 'moderator' | 'admin';
+
 export type User = {
   id: number;
   email: string;
   password: string;
+  role: Role;
 };
 
 export type PublicUser = Omit<User, 'password'>;
@@ -41,12 +44,9 @@ export type RegisterResponse =
     }
   | ErrorResponse;
 
-
-
 export type LoginResponse =
   | {
       success: true;
-      data: PublicUser;
+      data: { token: string };
     }
   | ErrorResponse;
-

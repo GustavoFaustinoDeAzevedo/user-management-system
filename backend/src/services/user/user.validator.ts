@@ -1,5 +1,4 @@
-import { ValidationResult } from './user.types';
-import bcrypt from 'bcrypt';
+import { User, ValidationResult } from './user.types';
 
 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
 
@@ -52,8 +51,11 @@ export function validateUserBase(data: unknown): ValidationResult {
 }
 
 export function validateUser(data: unknown): ValidationResult {
+
+
   // Reutiliza as validações básicas de email e password
   const result = validateUserBase(data);
+
   if (!result.success) {
     return result;
   }
@@ -63,30 +65,20 @@ export function validateUser(data: unknown): ValidationResult {
     password: [] as string[],
   };
   const email = (result.data as any).email;
-  const rawPassword = (result.data as any).password;
-  let password: string | undefined;
+  const password = (result.data as any).password;
 
-  if (typeof rawPassword !== 'string') {
-    errors.password.push('You must send a password');
-  } else {
-    password = rawPassword;
-    if (password.length < 8 || password.length > 20) {
-      errors.password.push('Password must be between 8 and 20 characters');
-    }
+  if (password.length < 8 || password.length > 20) {
+    errors.password.push('Password must be between 8 and 20 characters');
+  }
 
-    if (!regex.test(password)) {
-      errors.password.push(
-        'Password must contain uppercase, lowercase, number and special character',
-      );
-    }
+  if (!regex.test(password)) {
+    errors.password.push(
+      'Password must contain uppercase, lowercase, number and special character',
+    );
   }
 
   if (errors.email.length || errors.password.length) {
     return { success: false, errors };
-  }
-
-  if (!email || !password) {
-    throw new Error('Validation logic failed'); // nunca deve acontecer
   }
 
   return {

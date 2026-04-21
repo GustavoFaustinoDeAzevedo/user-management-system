@@ -42,3 +42,19 @@ export function authorize(roles: Role[]) {
     return next();
   };
 }
+
+export function onlyOwnerOrAdmin(param: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = (req as Request & { user: AuthUser }).user;
+    const resourceId = Number(req.params[param]);
+
+    if (user.role === 'admin' || user.id === resourceId) {
+      return next();
+    }
+
+    return res.status(403).json({
+      error: 'Forbidden',
+    });
+  };
+}
+

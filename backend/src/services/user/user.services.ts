@@ -4,7 +4,7 @@ import {
   RegisterResponse,
   User,
 } from './user.types';
-import { validateUser } from './user.validator';
+import { validateUser, validateUserBase } from './user.validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -13,13 +13,22 @@ let id = 1;
 const users: User[] = [];
 
 export async function createUser(input: unknown): Promise<RegisterResponse> {
+  const lowerCaseEmail = (input as any).email.toLowerCase().trim();
+  if (users?.find((u) => u.email === lowerCaseEmail)) {
+    return {
+      success: false,
+      errors: {
+        email: ['Email already in use'],
+      },
+    };
+  }
   const result = validateUser(input);
 
   if (!result.success) {
     return result;
   }
 
-  const { email } = result.data;
+  const email = result.data.email.toLowerCase().trim();
   const hashedPassword = await bcrypt.hash(result.data.password, 10);
 
   const user: User = {
@@ -41,13 +50,15 @@ export async function createUser(input: unknown): Promise<RegisterResponse> {
 }
 
 export async function loginUser(input: unknown): Promise<LoginResponse> {
-  const result = validateUser(input);
+  const result = validateUserBase(input);
 
   if (!result.success) {
     return result;
   }
 
-  const user = users.find((u) => u.email === result.data.email);
+  const email = result.data.email.toLowerCase().trim();
+
+  const user = users.find((u) => u.email === email);
   if (!user) {
     return {
       success: false,
@@ -60,7 +71,7 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
 
   const passwordMatch = await bcrypt.compare(
     result.data.password,
-    user.password,
+    user.password
   );
   if (!passwordMatch) {
     return {
@@ -70,6 +81,10 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
         password: [],
       },
     };
+  }
+
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET not defined');
   }
 
   const token = jwt.sign(
@@ -99,4 +114,19 @@ export function getUsers(): User[] {
 export function toPublicUser(user: User): PublicUser {
   const { password, ...rest } = user;
   return rest;
+}
+
+export function updateUserById(id: number, data: any) {
+  const user = users.find((u) => u.id === id);
+
+  if (!user) {
+    return { success: false, error: 'User not found' };
+  }
+
+  if (data.email) user.email = data.email;
+
+  return {
+    success: true,
+    data: toPublicUser(user),
+  };
 }

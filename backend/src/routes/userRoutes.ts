@@ -1,6 +1,15 @@
 import { Router } from 'express';
-import { listUsers, login, register } from '../controllers/userController';
-import { authMiddleware, authorize } from '../middlewares/auth/auth.middleware';
+import {
+  listUsers,
+  login,
+  register,
+  updateUser,
+} from '../controllers/userController';
+import {
+  authMiddleware,
+  authorize,
+  onlyOwnerOrAdmin,
+} from '../middlewares/auth/auth.middleware';
 
 const userRouter = Router();
 
@@ -8,6 +17,13 @@ userRouter.post('/register', register);
 
 userRouter.post('/login', login);
 
-userRouter.get('/', authMiddleware, authorize(['admin','moderator']), listUsers);
+userRouter.get(
+  '/',
+  authMiddleware,
+  authorize(['admin', 'moderator', 'user']),
+  listUsers,
+);
+
+userRouter.put('/:id', authMiddleware, onlyOwnerOrAdmin('id'), updateUser);
 
 export { userRouter };

@@ -50,3 +50,8 @@ export type LoginResponse =
       data: { token: string };
     }
   | ErrorResponse;
+
+export type UpdateUserInput = {
+  email?: unknown;
+  password?: unknown;
+};

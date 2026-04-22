@@ -11,7 +11,6 @@ import {
   LoginResponse,
   RegisterResponse,
 } from '../services/user/user.types';
-import { getAuthUser } from '../middlewares/auth/auth.utils';
 
 export async function register(req: Request, res: Response<RegisterResponse>) {
   const result = await createUser(req.body);
@@ -44,10 +43,14 @@ export function listUsers(req: Request, res: Response<ListUsersResponse>) {
   });
 }
 
-export function updateUser(req: Request, res: Response) {
-  const targetUserId = Number(req.params.id);
+export async function updateUser(req: Request, res: Response) {
+  const userId = Number(req.params.id);
 
-  const result = updateUserById(targetUserId, req.body);
+  const result = await updateUserById(userId, req.body);
+
+  if (!result.success) {
+    return res.status(400).json(result);
+  }
 
   return res.status(200).json(result);
 }

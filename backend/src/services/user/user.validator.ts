@@ -1,6 +1,23 @@
-import { User, ValidationResult } from './user.types';
+import { ValidationResult } from './user.types';
 
 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
+
+const emailValidation = {
+  testIfString: (email: unknown): email is string => typeof email === 'string',
+  testIfValid: (email: string) => email.includes('@'),
+};
+
+const passwordValidation = {
+  testIfString: (password: unknown): password is string =>
+    typeof password === 'string',
+  testIfValid: (password: string) => regex.test(password),
+  testIfLength: (password: string) =>
+    password.length >= 8 && password.length <= 20,
+  testIfEmptyConfirmPassword: (confirmPassword: string) =>
+    confirmPassword.trim() === '',
+  testIfMatch: (password: string, confirmPassword: string) =>
+    password === confirmPassword,
+};
 
 export function validateUserBase(data: unknown): ValidationResult {
   if (typeof data !== 'object' || data === null) {
@@ -17,31 +34,17 @@ export function validateUserBase(data: unknown): ValidationResult {
     email: [] as string[],
     password: [] as string[],
   };
-  const rawEmail = (data as any).email;
-  const rawPassword = (data as any).password;
-  let email: string | undefined;
-  let password: string | undefined;
+  const email = (data as any).email;
+  const password = (data as any).password;
 
-  // Email
-  if (typeof rawEmail !== 'string' || !rawEmail.includes('@')) {
-    errors.email.push('You must send a valid email address');
-  } else {
-    email = rawEmail;
-  }
+  emailValidation.testIfString(email) ||
+    errors.email.push('You must send an email address');
 
-  // Password
-  if (typeof rawPassword !== 'string') {
+  passwordValidation.testIfString(password) ||
     errors.password.push('You must send a password');
-  } else {
-    password = rawPassword;
-  }
 
   if (errors.email.length || errors.password.length) {
     return { success: false, errors };
-  }
-
-  if (!email || !password) {
-    throw new Error('Validation logic failed'); // nunca deve acontecer
   }
 
   return {
@@ -51,30 +54,81 @@ export function validateUserBase(data: unknown): ValidationResult {
 }
 
 export function validateUser(data: unknown): ValidationResult {
-
-
   // Reutiliza as validações básicas de email e password
   const result = validateUserBase(data);
 
   if (!result.success) {
     return result;
   }
-  // Validações adicionais para registro
+  
+  // Validações adicionais para o password
+
+  const errors = [] as string[];
+
+  const email = (result.data as any).email;
+  const password = (result.data as any).password;
+
+  passwordValidation.testIfLength(password) ||
+    errors.push('Password must be between 8 and 20 characters');
+
+  passwordValidation.testIfValid(password) ||
+    errors.push(
+      'Password must contain uppercase, lowercase, number and special character',
+    );
+
+  if (errors.length) {
+    return { success: false, errors: { email: [], password: errors } };
+  }
+
+  return {
+    success: true,
+    data: { email, password },
+  };
+}
+
+export function validateUpdateUser(data: unknown): ValidationResult {
   const errors = {
     email: [] as string[],
     password: [] as string[],
   };
-  const email = (result.data as any).email;
-  const password = (result.data as any).password;
 
-  if (password.length < 8 || password.length > 20) {
-    errors.password.push('Password must be between 8 and 20 characters');
+  if (typeof data !== 'object' || data === null) {
+    return {
+      success: false,
+      errors: {
+        email: ['Invalid payload'],
+        password: ['Invalid payload'],
+      },
+    };
   }
 
-  if (!regex.test(password)) {
-    errors.password.push(
-      'Password must contain uppercase, lowercase, number and special character',
-    );
+  const { email, password } = data as any;
+
+  if (email !== undefined) {
+    const isValidEmail =
+      emailValidation.testIfString(email) && emailValidation.testIfValid(email);
+
+    if (!isValidEmail) errors.email.push('Invalid email');
+  }
+
+  if (password !== undefined) {
+    const isStringPassword = passwordValidation.testIfString(password);
+
+    if (!isStringPassword) {
+      errors.password.push('Invalid password');
+    } else {
+      const isLengthValid = passwordValidation.testIfLength(password);
+      const hasValidChars = passwordValidation.testIfValid(password);
+
+      if (!isLengthValid) {
+        errors.password.push('Password must be between 8 and 20 characters');
+      }
+      if (!hasValidChars) {
+        errors.password.push(
+          'Password must contain uppercase, lowercase, number and special character',
+        );
+      }
+    }
   }
 
   if (errors.email.length || errors.password.length) {
@@ -83,6 +137,9 @@ export function validateUser(data: unknown): ValidationResult {
 
   return {
     success: true,
-    data: { email, password },
+    data: {
+      email,
+      password,
+    },
   };
 }

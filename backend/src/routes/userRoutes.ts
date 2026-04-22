@@ -24,6 +24,6 @@ userRouter.get(
   listUsers,
 );
 
-userRouter.put('/:id', authMiddleware, onlyOwnerOrAdmin('id'), updateUser);
+userRouter.patch('/:id', authMiddleware, onlyOwnerOrAdmin('id'), updateUser);
 
 export { userRouter };

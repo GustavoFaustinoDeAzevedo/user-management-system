@@ -4,7 +4,11 @@ import {
   RegisterResponse,
   User,
 } from './user.types';
-import { validateUser, validateUserBase } from './user.validator';
+import {
+  validateUpdateUser,
+  validateUser,
+  validateUserBase,
+} from './user.validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -22,6 +26,7 @@ export async function createUser(input: unknown): Promise<RegisterResponse> {
       },
     };
   }
+
   const result = validateUser(input);
 
   if (!result.success) {
@@ -71,7 +76,7 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
 
   const passwordMatch = await bcrypt.compare(
     result.data.password,
-    user.password
+    user.password,
   );
   if (!passwordMatch) {
     return {
@@ -116,14 +121,28 @@ export function toPublicUser(user: User): PublicUser {
   return rest;
 }
 
-export function updateUserById(id: number, data: any) {
+export async function updateUserById(id: number, input: unknown) {
   const user = users.find((u) => u.id === id);
 
   if (!user) {
     return { success: false, error: 'User not found' };
   }
 
-  if (data.email) user.email = data.email;
+  const result = validateUpdateUser(input);
+
+  if (!result.success) {
+    return result;
+  }
+
+  const { email, password } = result.data;
+
+  if (email !== undefined) {
+    user.email = email;
+  }
+
+  if (password !== undefined) {
+    user.password = await bcrypt.hash(password, 10);
+  }
 
   return {
     success: true,

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   listUsers,
   login,
+  refreshTokenController,
   register,
   updateUser,
 } from '../controllers/userController';
@@ -16,6 +17,8 @@ const userRouter = Router();
 userRouter.post('/register', register);
 
 userRouter.post('/login', login);
+
+userRouter.post('/refresh', refreshTokenController);
 
 userRouter.get(
   '/',

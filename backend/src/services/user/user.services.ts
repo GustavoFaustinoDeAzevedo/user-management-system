@@ -1,3 +1,8 @@
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET, JWT_REFRESH_SECRET } from '../../config/env';
+import { Prisma } from '@prisma/client';
+import { prisma } from '../../lib/prisma/prisma';
 import {
   LoginResponse,
   PublicUser,
@@ -9,24 +14,8 @@ import {
   validateUser,
   validateUserBase,
 } from './user.validator';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-
-let id = 1;
-
-const users: User[] = [];
 
 export async function createUser(input: unknown): Promise<RegisterResponse> {
-  const lowerCaseEmail = (input as any).email.toLowerCase().trim();
-  if (users?.find((u) => u.email === lowerCaseEmail)) {
-    return {
-      success: false,
-      errors: {
-        email: ['Email already in use'],
-      },
-    };
-  }
-
   const result = validateUser(input);
 
   if (!result.success) {
@@ -36,22 +25,39 @@ export async function createUser(input: unknown): Promise<RegisterResponse> {
   const email = result.data.email.toLowerCase().trim();
   const hashedPassword = await bcrypt.hash(result.data.password, 10);
 
-  const user: User = {
-    id: id++,
-    email,
-    password: hashedPassword,
-    role: 'user',
-  };
-  users.push(user);
+  try {
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: 'user',
+      },
+    });
 
-  return {
-    success: true,
-    data: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    },
-  };
+    return {
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      } as PublicUser,
+    };
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      return {
+        success: false,
+        errors: {
+          email: ['Email already in use'],
+          password: [],
+        },
+      };
+    }
+
+    throw error;
+  }
 }
 
 export async function loginUser(input: unknown): Promise<LoginResponse> {
@@ -63,7 +69,10 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
 
   const email = result.data.email.toLowerCase().trim();
 
-  const user = users.find((u) => u.email === email);
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
   if (!user) {
     return {
       success: false,
@@ -78,6 +87,7 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
     result.data.password,
     user.password,
   );
+
   if (!passwordMatch) {
     return {
       success: false,
@@ -88,43 +98,54 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
     };
   }
 
-  if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET not defined');
+  if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    throw new Error('JWT secrets not defined');
   }
 
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     {
       id: user.id,
-      email: user.email,
       role: user.role,
     },
-    process.env.JWT_SECRET!,
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' },
+  );
+
+  const refreshToken = jwt.sign(
     {
-      expiresIn: '1h',
+      id: user.id,
     },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: '7d' },
   );
 
   return {
     success: true,
     data: {
-      token,
+      accessToken,
+      refreshToken,
     },
   };
 }
 
-export function getUsers(): User[] {
+export async function getUsers(): Promise<PublicUser[]> {
+  const users = (await prisma.user.findMany({
+    select: {
+      id: true,
+      email: true,
+      role: true,
+    },
+  })) as PublicUser[];
+
   return users;
 }
 
-export function toPublicUser(user: User): PublicUser {
-  const { password, ...rest } = user;
-  return rest;
-}
-
 export async function updateUserById(id: number, input: unknown) {
-  const user = users.find((u) => u.id === id);
+  const existingUser = await prisma.user.findUnique({
+    where: { id },
+  });
 
-  if (!user) {
+  if (!existingUser) {
     return { success: false, error: 'User not found' };
   }
 
@@ -134,18 +155,74 @@ export async function updateUserById(id: number, input: unknown) {
     return result;
   }
 
-  const { email, password } = result.data;
+  const dataToUpdate: any = {};
 
-  if (email !== undefined) {
-    user.email = email;
+  if (result.data.email !== undefined) {
+    dataToUpdate.email = result.data.email.toLowerCase().trim();
   }
 
-  if (password !== undefined) {
-    user.password = await bcrypt.hash(password, 10);
+  if (result.data.password !== undefined) {
+    dataToUpdate.password = await bcrypt.hash(result.data.password, 10);
   }
 
-  return {
-    success: true,
-    data: toPublicUser(user),
-  };
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: dataToUpdate,
+      select: {
+        id: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: updatedUser,
+    };
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return {
+        success: false,
+        errors: {
+          email: ['Email already in use'],
+        },
+      };
+    }
+
+    throw error;
+  }
+}
+
+export function refreshAccessToken(token: unknown) {
+  if (typeof token !== 'string') {
+    return {
+      success: false,
+      error: 'Invalid token',
+    };
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_REFRESH_SECRET) as any;
+
+    const accessToken = jwt.sign(
+      {
+        id: decoded.id,
+      },
+      JWT_SECRET,
+      { expiresIn: '15m' },
+    );
+
+    return {
+      success: true,
+      data: {
+        accessToken,
+      },
+    };
+  } catch {
+    return {
+      success: false,
+      error: 'Invalid or expired refresh token',
+    };
+  }
 }

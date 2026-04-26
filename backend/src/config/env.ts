@@ -1,7 +1,12 @@
-const JWT_SECRET = process.env.JWT_SECRET;
+function getEnv(name: string): string {
+  const value = process.env[name];
 
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET is required');
+  if (!value) {
+    throw new Error(`${name} is required`);
+  }
+
+  return value;
 }
 
-export { JWT_SECRET };
+export const JWT_SECRET = getEnv('JWT_SECRET');
+export const JWT_REFRESH_SECRET = getEnv('JWT_REFRESH_SECRET');

@@ -47,7 +47,10 @@ export type RegisterResponse =
 export type LoginResponse =
   | {
       success: true;
-      data: { token: string };
+      data: {
+        accessToken: string;
+        refreshToken: string;
+      };
     }
   | ErrorResponse;
 

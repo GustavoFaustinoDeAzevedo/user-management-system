@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { AuthUser } from './auth.types';
+import { AuthRequest, AuthUser } from './auth.types';
 import { Role } from '../../services/user/user.types';
 import { getAuthUser } from './auth.utils';
 
@@ -58,3 +58,12 @@ export function onlyOwnerOrAdmin(param: string) {
   };
 }
 
+export function requireRole(role: string) {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user && req.user.role !== role) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    next();
+  };
+}

@@ -41,4 +41,7 @@ export declare function refreshAccessToken(token: unknown): {
     };
     error?: never;
 };
+export declare function logout(refreshToken: string): Promise<{
+    success: boolean;
+}>;
 //# sourceMappingURL=user.services.d.ts.map

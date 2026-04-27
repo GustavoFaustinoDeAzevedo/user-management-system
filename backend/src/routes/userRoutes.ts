@@ -2,6 +2,8 @@ import { Router } from 'express';
 import {
   listUsers,
   login,
+  logoutController,
+  refresh,
   refreshTokenController,
   register,
   updateUser,
@@ -10,6 +12,7 @@ import {
   authMiddleware,
   authorize,
   onlyOwnerOrAdmin,
+  requireRole,
 } from '../middlewares/auth/auth.middleware';
 
 const userRouter = Router();
@@ -20,12 +23,10 @@ userRouter.post('/login', login);
 
 userRouter.post('/refresh', refreshTokenController);
 
-userRouter.get(
-  '/',
-  authMiddleware,
-  authorize(['admin', 'moderator', 'user']),
-  listUsers,
-);
+userRouter.get('/', authMiddleware, requireRole('admin'), listUsers);
+
+userRouter.post('/refresh', refresh);
+userRouter.post('/logout', logoutController);
 
 userRouter.patch('/:id', authMiddleware, onlyOwnerOrAdmin('id'), updateUser);
 

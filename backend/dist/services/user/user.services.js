@@ -8,6 +8,7 @@ exports.loginUser = loginUser;
 exports.getUsers = getUsers;
 exports.updateUserById = updateUserById;
 exports.refreshAccessToken = refreshAccessToken;
+exports.logout = logout;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const env_1 = require("../../config/env");
@@ -87,9 +88,14 @@ async function loginUser(input) {
         id: user.id,
         role: user.role,
     }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    const refreshToken = jsonwebtoken_1.default.sign({
-        id: user.id,
-    }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+    const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+    await prisma_1.prisma.refreshToken.create({
+        data: {
+            token: refreshToken,
+            userId: user.id,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+    });
     return {
         success: true,
         data: {
@@ -178,5 +184,11 @@ function refreshAccessToken(token) {
             error: 'Invalid or expired refresh token',
         };
     }
+}
+async function logout(refreshToken) {
+    await prisma_1.prisma.refreshToken.deleteMany({
+        where: { token: refreshToken },
+    });
+    return { success: true };
 }
 //# sourceMappingURL=user.services.js.map

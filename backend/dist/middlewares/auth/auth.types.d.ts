@@ -5,7 +5,7 @@ export type AuthUser = {
     email: string;
     role: Role;
 };
-export type AuthRequest = Request & {
-    user: AuthUser;
-};
+export interface AuthRequest extends Request {
+    user?: AuthUser;
+}
 //# sourceMappingURL=auth.types.d.ts.map

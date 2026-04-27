@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = authMiddleware;
 exports.authorize = authorize;
 exports.onlyOwnerOrAdmin = onlyOwnerOrAdmin;
+exports.requireRole = requireRole;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const auth_utils_1 = require("./auth.utils");
 function authMiddleware(req, res, next) {
@@ -45,6 +46,14 @@ function onlyOwnerOrAdmin(param) {
         return res.status(403).json({
             error: 'Forbidden',
         });
+    };
+}
+function requireRole(role) {
+    return (req, res, next) => {
+        if (req.user && req.user.role !== role) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+        next();
     };
 }
 //# sourceMappingURL=auth.middleware.js.map

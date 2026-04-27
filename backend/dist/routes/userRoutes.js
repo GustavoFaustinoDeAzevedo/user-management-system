@@ -9,6 +9,8 @@ exports.userRouter = userRouter;
 userRouter.post('/register', userController_1.register);
 userRouter.post('/login', userController_1.login);
 userRouter.post('/refresh', userController_1.refreshTokenController);
-userRouter.get('/', auth_middleware_1.authMiddleware, (0, auth_middleware_1.authorize)(['admin', 'moderator', 'user']), userController_1.listUsers);
+userRouter.get('/', auth_middleware_1.authMiddleware, (0, auth_middleware_1.requireRole)('admin'), userController_1.listUsers);
+userRouter.post('/refresh', userController_1.refresh);
+userRouter.post('/logout', userController_1.logoutController);
 userRouter.patch('/:id', auth_middleware_1.authMiddleware, (0, auth_middleware_1.onlyOwnerOrAdmin)('id'), userController_1.updateUser);
 //# sourceMappingURL=userRoutes.js.map

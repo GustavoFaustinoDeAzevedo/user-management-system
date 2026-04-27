@@ -21,15 +21,3 @@ app.listen(3000, () => {
   console.log('Servidor rodando na porta 3000');
 });
 
-// async function testDatabase() {
-//   const user = await prisma.user.create({
-//     data: {
-//       email: 'teste@email.com',
-//       password: '12345678',
-//     },
-//   });
-
-//   console.log('User criado:', user);
-// }
-
-// testDatabase();

@@ -112,13 +112,18 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
   );
 
   const refreshToken = jwt.sign(
-    {
-      id: user.id,
-    },
-    process.env.JWT_REFRESH_SECRET,
+    { id: user.id },
+    process.env.JWT_REFRESH_SECRET!,
     { expiresIn: '7d' },
   );
 
+  await prisma.refreshToken.create({
+    data: {
+      token: refreshToken,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
+  });
   return {
     success: true,
     data: {
@@ -225,4 +230,13 @@ export function refreshAccessToken(token: unknown) {
       error: 'Invalid or expired refresh token',
     };
   }
+}
+
+
+export async function logout(refreshToken: string) {
+  await prisma.refreshToken.deleteMany({
+    where: { token: refreshToken },
+  });
+
+  return { success: true };
 }

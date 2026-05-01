@@ -1,7 +1,8 @@
-.app__container {
+.login__container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
+  gap: 0.5rem;
 }

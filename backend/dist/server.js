@@ -17,4 +17,5 @@ app.get('/', (req, res) => {
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
 });
+console.log(process.env.DATABASE_URL);
 //# sourceMappingURL=server.js.map

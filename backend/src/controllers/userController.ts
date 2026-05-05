@@ -27,7 +27,13 @@ export async function register(req: Request, res: Response<RegisterResponse>) {
 }
 
 export async function login(req: Request, res: Response<LoginResponse>) {
+  console.log('BACKEND cwd:', process.cwd());
+  console.log('BACKEND DATABASE_URL:', process.env.DATABASE_URL);
+  console.log('BODY recebido no login:', req.body);
+
   const result = await loginUser(req.body);
+
+  console.log('Resultado do loginUser:', result);
 
   if (!result.success) {
     return res.status(400).json(result);

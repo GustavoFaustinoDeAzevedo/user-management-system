@@ -9,7 +9,17 @@ function App() {
         <h1>Teste de Login</h1>
         <Login />
       </main>
-      <footer></footer>
+      <footer>
+        <div>
+          <h2>Admin</h2>
+          <p>
+            <strong>Email:</strong> admin@email.com
+          </p>
+          <p>
+            <strong>Senha:</strong> Admin@123
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

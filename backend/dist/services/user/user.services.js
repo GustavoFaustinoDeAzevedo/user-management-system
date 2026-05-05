@@ -54,14 +54,18 @@ async function createUser(input) {
     }
 }
 async function loginUser(input) {
+    console.log('Input bruto do loginUser:', input);
     const result = (0, user_validator_1.validateUserBase)(input);
+    console.log('Resultado da validação:', result);
     if (!result.success) {
         return result;
     }
     const email = result.data.email.toLowerCase().trim();
+    console.log('Email normalizado:', email);
     const user = await prisma_1.prisma.user.findUnique({
         where: { email },
     });
+    console.log('Usuário encontrado:', user);
     if (!user) {
         return {
             success: false,
@@ -72,6 +76,7 @@ async function loginUser(input) {
         };
     }
     const passwordMatch = await bcrypt_1.default.compare(result.data.password, user.password);
+    console.log('Senha confere?', passwordMatch);
     if (!passwordMatch) {
         return {
             success: false,

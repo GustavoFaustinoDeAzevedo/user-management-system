@@ -61,17 +61,23 @@ export async function createUser(input: unknown): Promise<RegisterResponse> {
 }
 
 export async function loginUser(input: unknown): Promise<LoginResponse> {
+  console.log('Input bruto do loginUser:', input);
+
   const result = validateUserBase(input);
+  console.log('Resultado da validação:', result);
 
   if (!result.success) {
     return result;
   }
 
   const email = result.data.email.toLowerCase().trim();
+  console.log('Email normalizado:', email);
 
   const user = await prisma.user.findUnique({
     where: { email },
   });
+
+  console.log('Usuário encontrado:', user);
 
   if (!user) {
     return {
@@ -87,6 +93,8 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
     result.data.password,
     user.password,
   );
+
+  console.log('Senha confere?', passwordMatch);
 
   if (!passwordMatch) {
     return {
@@ -231,7 +239,6 @@ export function refreshAccessToken(token: unknown) {
     };
   }
 }
-
 
 export async function logout(refreshToken: string) {
   await prisma.refreshToken.deleteMany({

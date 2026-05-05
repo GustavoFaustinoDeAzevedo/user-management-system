@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const prisma_1 = require("../lib/prisma/prisma");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 async function main() {
-    const email = 'admin@email.com1';
+    const email = 'admin@email.com';
     const existing = await prisma_1.prisma.user.findUnique({
         where: { email },
     });

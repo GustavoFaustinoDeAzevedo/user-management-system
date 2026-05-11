@@ -8,6 +8,21 @@ const readline_1 = __importDefault(require("readline"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const prisma_1 = require("../lib/prisma/prisma");
 const user_validator_1 = require("../services/user/user.validator");
+// Garantir que o Prisma seja desconectado ao encerrar o processo
+const options = `
+1 - Criar usuário
+2 - Deletar usuário
+3 - Promover para admin
+4 - Rebaixar para user
+5 - Listar usuários
+6 ou help - Listar opções
+Qualquer outra tecla para sair
+`;
+process.on('SIGINT', async () => {
+    console.log('\nEncerrando...');
+    await prisma_1.prisma.$disconnect();
+    process.exit(0);
+});
 // ===== readline =====
 const rl = readline_1.default.createInterface({
     input: process.stdin,
@@ -136,35 +151,41 @@ async function list() {
 }
 // ===== menu =====
 async function main() {
+    console.log('Bem-vindo ao CLI de gerenciamento de usuários!');
     console.log(`
 Escolha uma opção:
-
-1 - Criar usuário
-2 - Deletar usuário
-3 - Promover para admin
-4 - Rebaixar para user
-5 - Listar usuários
-`);
-    const choice = await question('Opção: ');
+${options}`);
     try {
-        switch (choice) {
-            case '1':
-                await create();
-                break;
-            case '2':
-                await deleteUser();
-                break;
-            case '3':
-                await promote();
-                break;
-            case '4':
-                await demote();
-                break;
-            case '5':
-                await list();
-                break;
-            default:
-                console.log('Opção inválida');
+        let choice;
+        let running = true;
+        while (running) {
+            choice = await question('Opção: ');
+            switch (choice) {
+                case '1':
+                    await create();
+                    break;
+                case '2':
+                    await deleteUser();
+                    break;
+                case '3':
+                    await promote();
+                    break;
+                case '4':
+                    await demote();
+                    break;
+                case '5':
+                    await list();
+                    break;
+                case '6':
+                    console.log(options);
+                    break;
+                case 'help':
+                    console.log(options);
+                    break;
+                default:
+                    console.log('Encerrando...');
+                    running = false;
+            }
         }
     }
     catch (error) {

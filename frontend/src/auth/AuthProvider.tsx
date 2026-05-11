@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { api } from '../api/axios';
-import { AuthContext } from './authConthext';
+import { AuthContext } from './authContext';
 
-export const AuthProvider = ({ children }: any) => {
+export const AuthProvider = ({ children }: { children: JSX.Element }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   async function login(email: string, password: string) {

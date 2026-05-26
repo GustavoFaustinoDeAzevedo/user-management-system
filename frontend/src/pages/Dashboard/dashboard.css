@@ -2,4 +2,5 @@ nav {
   width: 20vw;
   height: 100vh;
   background-color: #f0f0f008;
+  transform: translateX(100%);
 }

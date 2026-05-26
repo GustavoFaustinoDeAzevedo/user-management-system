@@ -2,19 +2,19 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { useEffect } from 'react';
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { accessToken } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!accessToken) {
+    if (accessToken) {
       setTimeout(() => {
-        navigate('/login');
-      }, 100);
+        navigate('/dashboard');
+      }, 500);
     }
   }, [accessToken]);
 
   return children;
 };
 
-export default PrivateRoute;
+export default PublicRoute;

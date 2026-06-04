@@ -7,36 +7,46 @@ import { PublicRoute, PrivateRoute } from './routes';
 function App() {
   const location = useLocation();
 
+  const routes = [
+    {
+      path: '/',
+      element: (
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: '/login',
+      element: (
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: '/dashboard',
+      element: (
+        <PrivateRoute>
+          <Dashboard />
+        </PrivateRoute>
+      ),
+    },
+  ];
+
+  const renderRoutes = () => {
+    return routes.map(({ path, element }) => (
+      <Route key={path} path={path} element={element} />
+    ));
+  };
+
   return (
     <div className="app__container">
       <header></header>
       <main className="app__main">
-        <AnimatePresence mode="wait" >
+        <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            <Route
-              path="/"
-              element={
-                <PublicRoute>
-                  <Login />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <PublicRoute>
-                  <Login />
-                </PublicRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
+            {renderRoutes()}
           </Routes>
         </AnimatePresence>
       </main>

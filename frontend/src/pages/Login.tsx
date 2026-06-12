@@ -44,7 +44,12 @@ export const Login = () => {
           className="login__password"
           required
         />
-        <button type="button" onClick={handleLogin} className="login__button">
+        <button
+          type="submit"
+          disabled={!email || !password}
+          onClick={handleLogin}
+          className="login__button"
+        >
           Login
         </button>
       </div>

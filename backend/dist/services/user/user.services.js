@@ -106,6 +106,11 @@ async function loginUser(input) {
         data: {
             accessToken,
             refreshToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+            },
         },
     };
 }

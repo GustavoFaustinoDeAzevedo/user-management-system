@@ -7,6 +7,7 @@ import {
   LoginResponse,
   PublicUser,
   RegisterResponse,
+  Role,
   User,
 } from './user.types';
 import {
@@ -137,6 +138,11 @@ export async function loginUser(input: unknown): Promise<LoginResponse> {
     data: {
       accessToken,
       refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role as Role,
+      },
     },
   };
 }

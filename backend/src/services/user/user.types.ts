@@ -50,6 +50,7 @@ export type LoginResponse =
       data: {
         accessToken: string;
         refreshToken: string;
+        user: PublicUser;
       };
     }
   | ErrorResponse;

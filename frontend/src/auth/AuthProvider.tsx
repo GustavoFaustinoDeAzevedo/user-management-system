@@ -1,9 +1,11 @@
 import { useState, type JSX } from 'react';
-import { api } from '../api/axios';
+import { api, setAccessToken as setAxiosAccessToken } from '../api/axios';
 import { AuthContext } from './authContext';
+import type { User } from '../services/users';
 
 export const AuthProvider = ({ children }: { children: JSX.Element }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [loggedUser, setLoggedUser] = useState<User | null>(null);
 
   async function login(email: string, password: string) {
     console.log('Tentando login com:', { email, password });
@@ -13,9 +15,12 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
       console.log('Resposta do backend:', res.data);
 
-      const { accessToken, refreshToken } = res.data.data;
+      const { accessToken, refreshToken, user } = res.data.data;
 
-      setAccessToken(accessToken);
+      setToken(accessToken);
+      setAxiosAccessToken(accessToken);
+      setLoggedUser(user);
+
       localStorage.setItem('refreshToken', refreshToken);
     } catch (error) {
       console.log('Erro no login:', error);
@@ -28,12 +33,14 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
     await api.post('/users/logout', { refreshToken });
 
-    setAccessToken(null);
+    setToken(null);
+    setAxiosAccessToken('');
+
     localStorage.removeItem('refreshToken');
   }
 
   return (
-    <AuthContext.Provider value={{ accessToken, login, logout }}>
+    <AuthContext.Provider value={{ token, user: loggedUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -32,6 +32,7 @@ function App() {
         </PrivateRoute>
       ),
     },
+    
   ];
 
   const renderRoutes = () => {

@@ -1,23 +1,27 @@
 import { useAuth } from '../../auth/useAuth';
+import { Admin } from '../Admin';
 import './dashboard.css';
-import { motion } from 'framer-motion';
 
 export const Dashboard = () => {
-  const { logout } = useAuth();
-
+  const { logout, user } = useAuth();
   return (
-    <motion.div
-      initial={{ opacity: 0, x: '200%' }}
-      animate={{ opacity: 1, x: '100%' }}
-      exit={{ opacity: 0, x: '200%' }}
-      transition={{ duration: 0.5 }}
-      className="dashboard__container"
-    >
+    <div className="dashboard__container">
       <nav>
+        {user?.role === 'admin' ? (
+          <h4>Painel do Admin</h4>
+        ) : (
+          <h4>Painel do Usuário</h4>
+        )}
+        <p>Olá, {user?.email}</p>
         <button type="button" onClick={logout}>
           Sair
         </button>
       </nav>
-    </motion.div>
+      {user?.role === 'admin' && (
+        <div className="dashboard__admin">
+          <Admin />
+        </div>
+      )}
+    </div>
   );
 };

@@ -3,16 +3,16 @@ import { useAuth } from '../auth/useAuth';
 import { useEffect } from 'react';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { accessToken } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!accessToken) {
+    if (!token) {
       setTimeout(() => {
         navigate('/login');
       }, 100);
     }
-  }, [accessToken]);
+  }, [token]);
 
   return children;
 };

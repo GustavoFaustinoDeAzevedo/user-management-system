@@ -41,10 +41,11 @@ function questionHidden(query) {
         stdin.resume();
         stdin.setRawMode(true);
         let input = '';
-        stdin.on('data', (char) => {
+        const onData = (char) => {
             const key = char.toString();
             if (key === '\n' || key === '\r') {
                 stdin.setRawMode(false);
+                stdin.removeListener('data', onData);
                 stdout.write('\n');
                 resolve(input);
             }
@@ -57,7 +58,8 @@ function questionHidden(query) {
             else {
                 input += key;
             }
-        });
+        };
+        stdin.on('data', onData);
     });
 }
 // ===== comandos =====
@@ -69,14 +71,23 @@ async function create() {
         console.log('Erro de validação:', validation.errors);
         return;
     }
+    const normalizedEmail = email.toLowerCase().trim();
     const hashedPassword = await bcrypt_1.default.hash(password, 10);
-    const user = await prisma_1.prisma.user.create({
-        data: {
-            email: email.toLowerCase().trim(),
-            password: hashedPassword,
-            role: 'user',
-        },
-    });
+    const user = {
+        email: normalizedEmail,
+        password: hashedPassword,
+        role: 'user',
+    };
+    try {
+        await prisma_1.prisma.user.create({ data: user });
+    }
+    catch (error) {
+        if (error.code === 'P2002') {
+            console.log('Email já cadastrado');
+            return;
+        }
+        throw error;
+    }
     console.log('Usuário criado:', user.email);
 }
 async function deleteUser() {
@@ -111,7 +122,14 @@ async function deleteUser() {
 }
 async function promote() {
     const email = await question('Email do usuário: ');
-    const user = await prisma_1.prisma.user.update({
+    const user = await prisma_1.prisma.user.findUnique({
+        where: { email },
+    });
+    if (!user) {
+        console.log('Usuário não encontrado');
+        return;
+    }
+    await prisma_1.prisma.user.update({
         where: { email },
         data: { role: 'admin' },
     });
@@ -140,13 +158,14 @@ async function demote() {
 async function list() {
     const users = await prisma_1.prisma.user.findMany({
         select: {
+            id: true,
             email: true,
             role: true,
         },
     });
     console.log('\nUsuários:');
     users.forEach((u) => {
-        console.log(`- ${u.email} (${u.role})`);
+        console.log(`#${u.id} - ${u.email} (${u.role})`);
     });
 }
 // ===== menu =====

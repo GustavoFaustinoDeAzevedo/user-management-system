@@ -45,11 +45,12 @@ function questionHidden(query: string): Promise<string> {
 
     let input = '';
 
-    stdin.on('data', (char: Buffer) => {
+    const onData = (char: Buffer) => {
       const key = char.toString();
 
       if (key === '\n' || key === '\r') {
         stdin.setRawMode(false);
+        stdin.removeListener('data', onData);
         stdout.write('\n');
         resolve(input);
       } else if (key === '\u0003') {
@@ -59,7 +60,9 @@ function questionHidden(query: string): Promise<string> {
       } else {
         input += key;
       }
-    });
+    };
+
+    stdin.on('data', onData);
   });
 }
 
@@ -75,16 +78,24 @@ async function create() {
     console.log('Erro de validação:', validation.errors);
     return;
   }
-
+  const normalizedEmail = email.toLowerCase().trim();
   const hashedPassword = await bcrypt.hash(password, 10);
+  const user = {
+    email: normalizedEmail,
+    password: hashedPassword,
+    role: 'user',
+  };
 
-  const user = await prisma.user.create({
-    data: {
-      email: email.toLowerCase().trim(),
-      password: hashedPassword,
-      role: 'user',
-    },
-  });
+  try {
+    await prisma.user.create({ data: user });
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      console.log('Email já cadastrado');
+      return;
+    }
+
+    throw error;
+  }
 
   console.log('Usuário criado:', user.email);
 }
@@ -134,7 +145,16 @@ async function deleteUser() {
 async function promote() {
   const email = await question('Email do usuário: ');
 
-  const user = await prisma.user.update({
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    console.log('Usuário não encontrado');
+    return;
+  }
+
+  await prisma.user.update({
     where: { email },
     data: { role: 'admin' },
   });
@@ -172,6 +192,7 @@ async function demote() {
 async function list() {
   const users = await prisma.user.findMany({
     select: {
+      id: true,
       email: true,
       role: true,
     },
@@ -179,7 +200,7 @@ async function list() {
 
   console.log('\nUsuários:');
   users.forEach((u) => {
-    console.log(`- ${u.email} (${u.role})`);
+    console.log(`#${u.id} - ${u.email} (${u.role})`);
   });
 }
 

@@ -7,6 +7,7 @@ import {
   refreshTokenController,
   register,
   updateUser,
+  deleteUser,
 } from '../controllers/userController';
 import {
   authMiddleware,
@@ -25,9 +26,12 @@ userRouter.post('/refresh', refreshTokenController);
 
 userRouter.get('/', authMiddleware, requireRole('admin'), listUsers);
 
-userRouter.post('/refresh', refresh);
-userRouter.post('/logout', logoutController);
-
 userRouter.patch('/:id', authMiddleware, onlyOwnerOrAdmin('id'), updateUser);
+
+userRouter.delete('/:id', authMiddleware, deleteUser);
+
+userRouter.post('/refresh', refresh);
+
+userRouter.post('/logout', logoutController);
 
 export { userRouter };

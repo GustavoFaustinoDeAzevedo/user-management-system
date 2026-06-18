@@ -213,6 +213,12 @@ export async function updateUserById(id: number, input: unknown) {
   }
 }
 
+export async function deleteUserById(id: number) {
+  await prisma.user.delete({
+    where: { id },
+  });
+}
+
 export function refreshAccessToken(token: unknown) {
   if (typeof token !== 'string') {
     return {

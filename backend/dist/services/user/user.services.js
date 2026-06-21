@@ -7,6 +7,7 @@ exports.createUser = createUser;
 exports.loginUser = loginUser;
 exports.getUsers = getUsers;
 exports.updateUserById = updateUserById;
+exports.deleteUserById = deleteUserById;
 exports.refreshAccessToken = refreshAccessToken;
 exports.logout = logout;
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -168,6 +169,11 @@ async function updateUserById(id, input) {
         }
         throw error;
     }
+}
+async function deleteUserById(id) {
+    await prisma_1.prisma.user.delete({
+        where: { id },
+    });
 }
 function refreshAccessToken(token) {
     if (typeof token !== 'string') {

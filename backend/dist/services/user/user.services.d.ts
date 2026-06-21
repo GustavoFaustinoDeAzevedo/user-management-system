@@ -30,6 +30,7 @@ export declare function updateUserById(id: number, input: unknown): Promise<{
     error?: never;
     data?: never;
 }>;
+export declare function deleteUserById(id: number): Promise<void>;
 export declare function refreshAccessToken(token: unknown): {
     success: boolean;
     error: string;

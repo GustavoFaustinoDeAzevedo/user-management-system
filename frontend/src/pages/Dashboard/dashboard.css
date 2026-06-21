@@ -50,6 +50,7 @@
     table {
       width: 80%;
       border-collapse: collapse;
+      text-align: center;
 
       thead {
         th {
@@ -63,20 +64,37 @@
 
       }
 
+      tbody {
+        tr:nth-child(even) {
+          background-color: var(--code-bg);
+        }
+      }
+
+      tfoot {
+        td {
+          border: none;
+
+          form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+
+            button {
+              border: 1px solid var(--accent-border);
+              border-radius: 4px;
+              margin-top: 1rem;
+            }
+          }
+        }
+      }
+
       th,
       td {
         padding: 0.5rem;
         border: 1px solid var(--accent-border);
-      }
-
-      tr:nth-child(even) {
-        background-color: #f0f0f008;
-      }
-
-      td:last-child {
-        display: flex;
-        justify-content: center;
-        align-items: center;
       }
 
       button {

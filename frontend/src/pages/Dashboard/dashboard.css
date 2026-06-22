@@ -47,69 +47,87 @@
     justify-content: center;
     align-items: center;
 
-    table {
+    .admin__table-container {
       width: 80%;
-      border-collapse: collapse;
-      text-align: center;
+      max-height: 30vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
 
-      thead {
-        th {
-          background-color: var(--accent-bg);
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+        border-spacing: 0;
+
+        thead {
+          position: sticky;
+          top: 0px;
+          z-index: 1;
+          background-color: #0d0415;
           color: var(--accent-text);
+          box-shadow: 0 2px 0 0 var(--border);
 
-          &:last-child {
-            width: 20%
+          th {
+            border: none;
+          }
+
+        }
+
+        tbody {
+          td {
+            border: none;
+          }
+
+          tr:nth-child(even) {
+            background-color: var(--code-bg);
           }
         }
 
-      }
+        tfoot {
+          td {
+            position: absolute;
+            bottom: 100px;
+            right: 50%;
+            transform: translateX(50%);
+            border: none;
 
-      tbody {
-        tr:nth-child(even) {
-          background-color: var(--code-bg);
-        }
-      }
+            form {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              flex-direction: column;
+              gap: 0.5rem;
+              margin-top: 0.5rem;
 
-      tfoot {
-        td {
-          border: none;
-
-          form {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-
-            button {
-              border: 1px solid var(--accent-border);
-              border-radius: 4px;
-              margin-top: 1rem;
+              button {
+                border: 1px solid var(--accent-border);
+                border-radius: 4px;
+                margin-top: 1rem;
+              }
             }
           }
         }
-      }
 
-      th,
-      td {
-        padding: 0.5rem;
-        border: 1px solid var(--accent-border);
-      }
-
-      button {
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 0.5rem;
-        font-size: 0.9rem;
-
-        &:hover {
-          background-color: #f0f0f02a;
+        th,
+        td {
+          padding: 0.5rem;
+          border: 1px solid var(--accent-border);
         }
 
-        &:active {
+        button {
           background-color: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0.5rem;
+          font-size: 0.9rem;
+
+          &:hover {
+            background-color: #f0f0f02a;
+          }
+
+          &:active {
+            background-color: transparent;
+          }
         }
       }
     }

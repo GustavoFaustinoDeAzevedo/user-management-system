@@ -24,6 +24,7 @@
 footer {
   width: 100%;
   position: absolute;
+  z-index: -1;
   bottom: 0;
   padding: 1rem;
   display: flex;

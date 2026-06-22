@@ -30,6 +30,12 @@ export function Admin() {
     createUser(userRegister).then((result) => setUsers([...users, result]));
   };
 
+  const handleUserRegisterChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    setUserRegister({ ...userRegister, [e.target.name]: e.target.value });
+  };
+
   const usersMap = useMemo(
     () =>
       users.map((user) => (
@@ -51,53 +57,55 @@ export function Admin() {
   }
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Email</th>
-          <th>Cargo</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
+    <div className="admin__table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Cargo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
 
-      <tbody>{usersMap}</tbody>
-      <tfoot>
-        <tr>
-          <td colSpan={4}>
-            <p>Adicionar Usuário</p>
-            <form onSubmit={handleAddUser}>
-              <input
-                type="email"
-                placeholder="Email"
-                value={userRegister.email}
-                onChange={(e) =>
-                  setUserRegister({ ...userRegister, email: e.target.value })
-                }
-              />
-              <input
-                type="password"
-                placeholder="Senha"
-                value={userRegister.password}
-                onChange={(e) =>
-                  setUserRegister({ ...userRegister, password: e.target.value })
-                }
-              />
-              <select
-                title="Cargo"
-                value={userRegister.role}
-                onChange={(e) =>
-                  setUserRegister({ ...userRegister, role: e.target.value })
-                }
-              >
-                <option value="user">Usuário</option>
-                <option value="admin">Administrador</option>
-              </select>
-              <button type="submit">Registrar</button>
-            </form>
-          </td>
-        </tr>
-      </tfoot>
-    </table>
+        <tbody>{usersMap}</tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={4}>
+              <p>Adicionar Usuário</p>
+              <form onSubmit={handleAddUser}>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={userRegister.email}
+                  onChange={handleUserRegisterChange}
+                />
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Senha"
+                  value={userRegister.password}
+                  onChange={handleUserRegisterChange}
+                />
+                <div>
+                  Cargo: &nbsp;&nbsp;
+                  <select
+                    title="Cargo"
+                    name="role"
+                    value={userRegister.role}
+                    onChange={handleUserRegisterChange}
+                  >
+                    <option value="user">Usuário</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
+                <button type="submit">Registrar</button>
+              </form>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   );
 }

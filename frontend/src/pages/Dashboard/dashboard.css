@@ -23,22 +23,7 @@
       color: #fff;
     }
 
-    button {
-      background-color: transparent;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
 
-      &:hover {
-        text-decoration: underline;
-      }
-
-      &:active {
-        background-color: transparent;
-      }
-    }
   }
 
   .dashboard__admin {
@@ -46,6 +31,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+    gap: 2rem;
 
     .admin__table-container {
       width: 80%;
@@ -83,30 +70,7 @@
           }
         }
 
-        tfoot {
-          td {
-            position: absolute;
-            bottom: 100px;
-            right: 50%;
-            transform: translateX(50%);
-            border: none;
 
-            form {
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              flex-direction: column;
-              gap: 0.5rem;
-              margin-top: 0.5rem;
-
-              button {
-                border: 1px solid var(--accent-border);
-                border-radius: 4px;
-                margin-top: 1rem;
-              }
-            }
-          }
-        }
 
         th,
         td {
@@ -129,6 +93,66 @@
             background-color: transparent;
           }
         }
+      }
+    }
+
+    .admin__panel {
+      width: 100%;
+      padding: 0 10rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-direction: row;
+
+
+      .admin__user-delete {
+        min-width: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        gap: 2rem;
+
+        button {
+          border: 1px solid var(--accent-border);
+          border-radius: 4px;
+        }
+      }
+
+      .admin__user-register {
+        border: none;
+
+        form {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+
+          button {
+            border: 1px solid var(--accent-border);
+            border-radius: 4px;
+            margin-top: 1rem;
+          }
+        }
+      }
+    }
+
+    button {
+      background-color: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:active {
+        background-color: transparent;
       }
     }
   }

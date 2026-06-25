@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getUsers, type User, createUser } from '../services/users';
+import { useAuth } from '../auth/useAuth';
+
+type CheckedUser = User & {
+  checked: boolean;
+};
 
 export function Admin() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<CheckedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRegister, setUserRegister] = useState({
     email: '',
@@ -10,11 +15,14 @@ export function Admin() {
     role: 'user',
   });
 
+  const { user: currentUser } = useAuth();
+
   useEffect(() => {
     async function loadUsers() {
       try {
         const data = await getUsers();
-        setUsers(data);
+        const checked = data.map((user) => ({ ...user, checked: false }));
+        setUsers(checked);
       } catch (error) {
         console.error(error);
       } finally {
@@ -25,9 +33,31 @@ export function Admin() {
     loadUsers();
   }, []);
 
+  const handleCheckAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => {
+        if (user.role !== 'admin')
+          return { ...user, checked: e.target.checked };
+        return user;
+      }),
+    );
+  };
+
+  const handleCheckUser = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === Number(e.target.name) && user.role !== 'admin'
+          ? { ...user, checked: !user.checked }
+          : user,
+      ),
+    );
+  };
+
   const handleAddUser = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createUser(userRegister).then((result) => setUsers([...users, result]));
+    createUser(userRegister).then((result) =>
+      setUsers([...users, { ...result, checked: false }]),
+    );
   };
 
   const handleUserRegisterChange = (
@@ -40,12 +70,29 @@ export function Admin() {
     () =>
       users.map((user) => (
         <tr key={user.id}>
+          <td>
+            {((user.role === 'admin' && user.id === currentUser?.id) ||
+              user.role !== 'admin') && (
+              <input
+                name={user.id.toString()}
+                onChange={handleCheckUser}
+                checked={user.checked}
+                title="Selecionar todos"
+                type="checkbox"
+              />
+            )}
+          </td>
           <td>{user.id}</td>
           <td>{user.email}</td>
           <td>{user.role}</td>
           <td>
-            <button type="button">Editar</button>
-            <button type="button">Apagar</button>
+            {((user.role === 'admin' && user.id === currentUser?.id) ||
+              user.role !== 'admin') && (
+              <>
+                <button type="button">Editar</button>
+                <button type="button">Apagar</button>
+              </>
+            )}
           </td>
         </tr>
       )),
@@ -57,55 +104,68 @@ export function Admin() {
   }
 
   return (
-    <div className="admin__table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Email</th>
-            <th>Cargo</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
+    <>
+      <div className="admin__table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <input
+                  onChange={handleCheckAll}
+                  title="Selecionar todos"
+                  type="checkbox"
+                />
+              </th>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Cargo</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
 
-        <tbody>{usersMap}</tbody>
-        <tfoot>
-          <tr>
-            <td colSpan={4}>
-              <p>Adicionar Usuário</p>
-              <form onSubmit={handleAddUser}>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={userRegister.email}
-                  onChange={handleUserRegisterChange}
-                />
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Senha"
-                  value={userRegister.password}
-                  onChange={handleUserRegisterChange}
-                />
-                <div>
-                  Cargo: &nbsp;&nbsp;
-                  <select
-                    title="Cargo"
-                    name="role"
-                    value={userRegister.role}
-                    onChange={handleUserRegisterChange}
-                  >
-                    <option value="user">Usuário</option>
-                    <option value="admin">Administrador</option>
-                  </select>
-                </div>
-                <button type="submit">Registrar</button>
-              </form>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+          <tbody>{usersMap}</tbody>
+        </table>
+      </div>
+      <div className="admin__panel">
+        <div className="admin__user-delete">
+          <p>
+            Usuários selecionados: {users.filter((user) => user.checked).length}
+          </p>
+          <button type="button">Apagar</button>
+        </div>
+        <div className="admin__user-register">
+          <p>Adicionar Usuário</p>
+          <form onSubmit={handleAddUser}>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={userRegister.email}
+              onChange={handleUserRegisterChange}
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Senha"
+              value={userRegister.password}
+              onChange={handleUserRegisterChange}
+            />
+            <div>
+              Cargo: &nbsp;&nbsp;
+              <select
+                title="Cargo"
+                name="role"
+                value={userRegister.role}
+                onChange={handleUserRegisterChange}
+              >
+                <option value="user">Usuário</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+            <button type="submit">Registrar</button>
+          </form>
+        </div>
+      </div>
+    </>
   );
 }

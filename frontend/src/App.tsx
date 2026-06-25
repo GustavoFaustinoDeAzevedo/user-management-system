@@ -32,7 +32,6 @@ function App() {
         </PrivateRoute>
       ),
     },
-    
   ];
 
   const renderRoutes = () => {
@@ -51,17 +50,15 @@ function App() {
           </Routes>
         </AnimatePresence>
       </main>
-      <footer>
-        <div>
-          <h2>Admin</h2>
-          <p>
-            <strong>Email:</strong> admin@email.com
-          </p>
-          <p>
-            <strong>Senha:</strong> Admin@123
-          </p>
-        </div>
-      </footer>
+      <div className="admin-account__container">
+        <h2>Admin</h2>
+        <p>
+          <strong>Email:</strong> admin@email.com
+        </p>
+        <p>
+          <strong>Senha:</strong> Admin@123
+        </p>
+      </div>
     </div>
   );
 }

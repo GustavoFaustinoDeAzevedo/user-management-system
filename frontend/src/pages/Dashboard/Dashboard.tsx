@@ -1,5 +1,5 @@
 import { useAuth } from '../../auth/useAuth';
-import { Admin } from '../Admin';
+import Admin from '../Admin';
 import './dashboard.css';
 
 export const Dashboard = () => {

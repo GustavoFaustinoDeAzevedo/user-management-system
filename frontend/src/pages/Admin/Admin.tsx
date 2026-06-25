@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getUsers, type User, createUser } from '../services/users';
-import { useAuth } from '../auth/useAuth';
+import { getUsers, type User, createUser } from '../../services/users';
+import { useAuth } from '../../auth/useAuth';
+import AdminPanel from './AdminPanel';
 
-type CheckedUser = User & {
+export type CheckedUser = User & {
   checked: boolean;
 };
 
-export function Admin() {
+const Admin = () => {
   const [users, setUsers] = useState<CheckedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRegister, setUserRegister] = useState({
@@ -55,7 +56,7 @@ export function Admin() {
 
   const handleAddUser = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createUser(userRegister).then((result) =>
+    createUser(userRegister).then((result: User) =>
       setUsers([...users, { ...result, checked: false }]),
     );
   };
@@ -126,46 +127,14 @@ export function Admin() {
           <tbody>{usersMap}</tbody>
         </table>
       </div>
-      <div className="admin__panel">
-        <div className="admin__user-delete">
-          <p>
-            Usuários selecionados: {users.filter((user) => user.checked).length}
-          </p>
-          <button type="button">Apagar</button>
-        </div>
-        <div className="admin__user-register">
-          <p>Adicionar Usuário</p>
-          <form onSubmit={handleAddUser}>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={userRegister.email}
-              onChange={handleUserRegisterChange}
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Senha"
-              value={userRegister.password}
-              onChange={handleUserRegisterChange}
-            />
-            <div>
-              Cargo: &nbsp;&nbsp;
-              <select
-                title="Cargo"
-                name="role"
-                value={userRegister.role}
-                onChange={handleUserRegisterChange}
-              >
-                <option value="user">Usuário</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </div>
-            <button type="submit">Registrar</button>
-          </form>
-        </div>
-      </div>
+      <AdminPanel
+        handleAddUser={handleAddUser}
+        handleUserRegisterChange={handleUserRegisterChange}
+        userRegister={userRegister}
+        users={users}
+      />
     </>
   );
-}
+};
+
+export default Admin;

@@ -4,7 +4,7 @@
 
 ## Ultimo Update do README
 
-`16-04-2026`
+`25-06-2026`
 
 ---
 
@@ -20,21 +20,23 @@ Aplicação full-stack desenvolvida para gerenciamento de usuários, com foco em
 - Validação de email e senha
 - Estrutura organizada com controllers e rotas
 - Padrão de resposta consistente (success, data, error)
-
----
-
-## Funcionalidades em desenvolvimento
-
 - Login e autenticação
 - Listagem de usuários (GET /users)
-- Edição de usuários
-- Exclusão de usuários
+- Edição de usuários (backend)
+- Exclusão de usuários (backend)
 - Controle de acesso (admin/usuário)
 - Integração com frontend
 
 ---
 
-## Como Executar (Provisório)
+## Funcionalidades em desenvolvimento
+
+- Edição de usuários (frontend)
+- Exclusão de usuários (frontend)
+
+---
+
+## Como Executar
 
 ```bash
 git clone https://github.com/GustavoFaustinoDeAzevedo/user-management-system
@@ -44,6 +46,8 @@ npm install
 npm run dev (recomendado para desenvolvimento)
 npx daemon (alternativa)
 ```
+
+> Para executar o frontend é o mesmo processo, entretanto, a pasta a ser acessada pelo cd é o 'user-management-system/frontend'
 
 ---
 
@@ -62,12 +66,36 @@ npx daemon (alternativa)
 
 POST /users/register
 
+### Fazer Login
+
+POST /users/login
+
+### Renovar Access Token
+
+POST /users/refresh
+
+### Fazer Logout
+
+POST /users/logout
+
+### Listar Usuários
+
+GET /users
+
+### Atualizar Usuário
+
+PATCH /users/:id
+
+### Deletar Usuário
+
+DELETE /users/:id
+
 #### Body:
 
 ```json
 {
-  "email": "teste@email.com",
-  "password": "Senha123!"
+  "email": "admin@email.com",
+  "password": "Admin@123"
 }
 ```
 
@@ -77,7 +105,13 @@ POST /users/register
 {
   "success": true,
   "data": {
-    "email": "teste@email.com"
+    "accessToken": "eyJhbGciOi...",
+    "refreshToken": "eyJhbGciOi...",
+    "user": {
+      "id": "1",
+      "email": "admin@email.com",
+      "role": "admin"
+    }
   }
 }
 ```
@@ -93,7 +127,7 @@ POST /users/register
 
 ---
 
-## Regras de negócio (planejadas)
+## Regras de negócio
 
 - Usuários não autenticados não podem acessar o sistema
 - Apenas administradores podem gerenciar outros usuários
